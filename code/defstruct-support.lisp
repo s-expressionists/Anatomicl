@@ -1,6 +1,6 @@
-(cl:in-package #:sicl-structure)
+(cl:in-package #:anatomicl)
 
-(defmethod compute-slot-layout (description environment))
+(defmethod compute-slot-layout (client description environment))
 
 (defgeneric layout-slots (description layout))
 (defgeneric generate-allocation-form (description layout))
@@ -8,6 +8,14 @@
 
 (defgeneric generate-boa-constructor (description layout name lambda-list))
 (defgeneric generate-standard-constructor (description layout name))
+
+(defgeneric structure-description (client name environment))
+(defgeneric (setf structure-description) (new-value client name environment))
+
+(defgeneric structure-class-name (client))
+(defgeneric structure-object-name (client))
+
+(defgeneric client-form (client))
 
 ;;; BOA constructors are a more complicated as they have the ability
 ;;; to completely override any specified slot initforms. So, in some
@@ -191,23 +199,23 @@
   (loop for predicate-name in (defstruct-predicates description)
         collect (generate-predicate description layout predicate-name)))
 
-(defgeneric generate-copier (description layout copier-name))
+(defgeneric generate-copier (client description layout copier-name))
 
-(defun generate-copiers (description layout)
+(defun generate-copiers (client description layout)
   (loop for copier-name in (defstruct-copiers description)
-        collect (generate-copier description layout copier-name)))
+        collect (generate-copier client description layout copier-name)))
 
-(defgeneric generate-defstruct-bits (description layout))
+(defgeneric generate-defstruct-bits (client description layout environment))
 
-(defgeneric expand-defstruct (description environment))
+(defgeneric expand-defstruct (client description environment))
 
-(defmethod expand-defstruct (description environment)
-  (let ((layout (compute-slot-layout description environment)))
+(defmethod expand-defstruct (client description environment)
+  (let ((layout (compute-slot-layout client description environment)))
     `(progn
-       ,(generate-defstruct-bits description layout)
+       ,(generate-defstruct-bits client description layout environment)
        ,@(generate-constructors description layout)
        ,@(generate-predicates description layout)
-       ,@(generate-copiers description layout)
+       ,@(generate-copiers client description layout)
        ',(defstruct-name description))))
 
 (defun compute-accessor-name (description slot-name)

@@ -1,6 +1,6 @@
 (cl:in-package #:asdf-user)
 
-(defsystem #:sicl-structure
+(defsystem #:anatomicl-intrinsic
   :serial t
   :components
   ((:file "packages")

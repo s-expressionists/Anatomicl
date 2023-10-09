@@ -1,4 +1,4 @@
-(cl:in-package #:sicl-structure)
+(cl:in-package #:anatomicl)
 
 (defgeneric has-standard-constructor (structure-class))
 

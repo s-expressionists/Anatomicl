@@ -1,6 +1,6 @@
-(cl:in-package #:sicl-structure)
+(cl:in-package #:anatomicl)
 
-(defun read-structure (stream ch p)
+(defun read-structure (client stream ch p)
   (when (and p (not *read-suppress*))
     (warn "Ignored numeric argument in #~A~A." p ch))
   (cond (*read-suppress*
@@ -14,7 +14,7 @@
              (error 'missing-sharp-s-argument :stream stream))
            (let* ((structure-name (first form))
                   (class (find-class structure-name nil)))
-             (unless (and class (typep class 'structure-class))
+             (unless (and class (typep class (structure-class-name client)))
                (error 'sharp-s-class-must-name-structure-class
                       :stream stream
                       :name structure-name))

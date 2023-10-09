@@ -1,6 +1,6 @@
 (cl:in-package #:common-lisp-user)
 
-(defpackage #:sicl-structure
+(defpackage #:anatomicl-extrinsic
   (:use #:common-lisp)
   (:local-nicknames (#:mop #:closer-mop))
   (:shadow #:defstruct
@@ -10,8 +10,4 @@
   (:export #:defstruct
            #:copy-structure
            #:structure-class
-           #:structure-object
-           #:structure-slot-definition
-           #:structure-slot-definition-read-only
-           #:structure-direct-slot-definition
-           #:structure-effective-slot-definition))
+           #:structure-object))

@@ -1,7 +1,7 @@
 ;;;; Parse and syntatically validate defstruct forms, converting them
 ;;;; into a more managable representation.
 
-(cl:in-package #:sicl-structure)
+(cl:in-package #:anatomicl)
 
 (defparameter *valid-defstruct-option-names*
   '(:conc-name :constructor :copier :predicate :include

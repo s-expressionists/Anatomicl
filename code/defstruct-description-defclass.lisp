@@ -1,4 +1,4 @@
-(cl:in-package #:sicl-structure)
+(cl:in-package #:anatomicl)
 
 ;;; These classes represent a defstruct form after parsing & validation.
 

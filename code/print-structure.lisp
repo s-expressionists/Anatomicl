@@ -1,4 +1,4 @@
-(cl:in-package #:sicl-structure)
+(cl:in-package #:anatomicl)
 
 ;;; Print-structure is separate from print-object to allow
 ;;; the :print-object option to override and parent print-object

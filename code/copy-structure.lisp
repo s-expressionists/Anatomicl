@@ -1,6 +1,7 @@
-(cl:in-package #:sicl-structure)
+(cl:in-package #:anatomicl)
 
-(defun copy-structure (object)
+(defun copy-structure (client object)
+  (declare (ignore client))
   (check-type object structure-object)
   (let* ((class (class-of object))
          (new-object (allocate-instance class)))

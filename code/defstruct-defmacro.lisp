@@ -1,4 +1,4 @@
-(cl:in-package #:sicl-structure)
+(cl:in-package #:anatomicl)
 
 (defmacro defstruct (&environment environment name-and-options &rest slots)
   ;; Due to some bootstrapping concerns, the environment is currently ignored.

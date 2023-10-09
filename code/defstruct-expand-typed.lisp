@@ -1,6 +1,6 @@
 ;;;; Expand typed defstructs.
 
-(cl:in-package #:sicl-structure)
+(cl:in-package #:anatomicl)
 
 (defun check-valid-defstruct-type (description environment)
   ;; The type must name a symbol naming a sequence type,
@@ -25,12 +25,12 @@
         (and (consp type)
              (eql (first type) 'vector)))))
 
-(defmethod compute-slot-layout ((description defstruct-typed-description) environment)
+(defmethod compute-slot-layout (client (description defstruct-typed-description) environment)
   (let* ((initial-offset (or (defstruct-initial-offset description) 0))
          (initial-offset-padding (make-list initial-offset :initial-element nil)))
     (cond ((defstruct-included-structure-name description)
            (let* ((parent-name (defstruct-included-structure-name description))
-                  (parent (find-structure-description parent-name nil environment)))
+                  (parent (structure-description parent-name environment)))
              (unless parent
                (if (find-class parent-name nil environment)
                    (error 'included-structure-must-be-typed :name parent-name)
@@ -42,7 +42,7 @@
                       :type (defstruct-type description)
                       :included-type (defstruct-type parent)))
              (destructuring-bind (parent-slot-layout parent-name-layout)
-                 (compute-slot-layout parent environment)
+                 (compute-slot-layout client parent environment)
                (let ((parent-slots (remove nil parent-slot-layout)))
                  ;; Make sure there are no conflicting slots and that all the included
                  ;; slots exist.
@@ -128,7 +128,7 @@
             ,@(loop for (sym . index) in name-layout
                     collect `(eql (elt object ,index) ',sym))))))
 
-(defmethod generate-copier ((description defstruct-typed-description) layout copier-name)
+(defmethod generate-copier (client (description defstruct-typed-description) layout copier-name)
   (declare (ignore description))
   ;; TODO: Should this check the type?
   `(defun ,copier-name (object)
@@ -150,9 +150,9 @@
           when slot
             append (generate-typed-slot-accessor slot index))))
 
-(defmethod generate-defstruct-bits ((description defstruct-typed-description) layout)
+(defmethod generate-defstruct-bits (client (description defstruct-typed-description) layout environment)
   `(progn
      (eval-when (:compile-toplevel :load-toplevel :execute)
-       (setf (find-structure-description ',(defstruct-name description))
+       (setf (structure-description ,(client-form client) ',(defstruct-name description) nil)
              ',description))
      ,@(generate-typed-slot-accessors description layout)))

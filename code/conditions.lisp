@@ -1,4 +1,4 @@
-(cl:in-package #:sicl-structure)
+(cl:in-package #:anatomicl)
 
 ;;; Parser errors.
 
@@ -80,8 +80,7 @@
   ((%name :initarg :name :reader name)))
 
 (define-condition included-structure-must-be-structure (type-error program-error)
-  ((%name :initarg :name :reader name))
-  (:default-initargs :expected-type 'structure-class))
+  ((%name :initarg :name :reader name)))
 
 ;;; Errors while expanding typed defstructs
 

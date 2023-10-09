@@ -1,4 +1,4 @@
-(cl:in-package #:sicl-structure)
+(cl:in-package #:anatomicl)
 
 (symbol-macrolet ((client sicl-client:*client*))
   (let* ((environment (env:global-environment))

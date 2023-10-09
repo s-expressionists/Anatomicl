@@ -1,18 +1,20 @@
 ;;;; Expand structure-object-based defstructs.
 
-(cl:in-package #:sicl-structure)
+(cl:in-package #:anatomicl)
 
-(defun check-included-structure-object (description environment)
+(defun check-included-structure-object (client description environment)
   (when (defstruct-included-structure-name description)
     (let* ((parent-name (defstruct-included-structure-name description))
-           (included-structure (find-class parent-name environment nil)))
+           (included-structure (find-class parent-name environment nil))
+           (expected-type (structure-class-name client)))
       (unless included-structure
-        (if (find-structure-description parent-name nil environment)
+        (if (structure-description parent-name environment)
             (error 'included-structure-must-not-be-typed :name parent-name)
             (error 'included-structure-does-not-exist :name parent-name)))
-      (unless (typep included-structure 'structure-class)
+      (unless (typep included-structure expected-type)
         (error 'included-structure-must-be-structure
-               :name parent-name :datum included-structure))
+               :name parent-name :datum included-structure
+               :expected-type expected-type))
       (unless (mop:class-finalized-p included-structure)
         (mop:finalize-inheritance included-structure))
       ;; All included slots must be present in the included structure.
@@ -43,8 +45,8 @@
                    :slot-name (slot-name slot)
                    :parent-slot-name (mop:slot-definition-name existing))))))))
 
-(defmethod compute-slot-layout ((description defstruct-object-description) environment)
-  (check-included-structure-object description environment)
+(defmethod compute-slot-layout (client (description defstruct-object-description) environment)
+  (check-included-structure-object client description environment)
   ;; All of them, including implicitly included slots.
   (append
    (when (defstruct-included-structure-name description)
@@ -85,10 +87,10 @@
   `(defun ,predicate-name (object)
      (typep object ',(defstruct-name description))))
 
-(defmethod generate-copier ((description defstruct-object-description) layout copier-name)
+(defmethod generate-copier (client (description defstruct-object-description) layout copier-name)
   `(defun ,copier-name (object)
      (check-type object ,(defstruct-name description))
-     (copy-structure object)))
+     (copy-structure ,(client-form client) object)))
 
 (defun compute-structure-object-direct-slots (all-slots)
   (loop for slot in all-slots
@@ -107,14 +109,15 @@
                          ',(slot-initform slot)
                          (lambda () ,(slot-initform slot)))))
 
-(defmethod generate-defstruct-bits ((description defstruct-object-description) layout)
+(defmethod generate-defstruct-bits (client (description defstruct-object-description) layout environment)
+  (declare (ignore environment))
   `(progn
      (eval-when (:compile-toplevel :load-toplevel :execute)
        (mop:ensure-class
         ',(defstruct-name description)
-        :metaclass 'structure-class
+        :metaclass ',(structure-class-name client)
         :direct-superclasses '(,(or (defstruct-included-structure-name description)
-                                    'structure-object))
+                                    (structure-object-name client)))
         :direct-slots (list ,@(compute-structure-object-direct-slots layout))
         :direct-default-initargs (list ,@(compute-structure-object-direct-default-initargs layout))
         :has-standard-constructor ',(some (lambda (ctor) (endp (rest ctor)))
