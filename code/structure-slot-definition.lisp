@@ -1,6 +1,9 @@
 (cl:in-package #:anatomicl)
 
-(defclass structure-slot-definition (mop:standard-slot-definition)
+;;; We inherit from sb-pcl::structure-slot-definition so that the slot names can
+;;; be constant.
+(defclass structure-slot-definition (mop:standard-slot-definition
+                                     #+sbcl sb-pcl::structure-slot-definition)
   ((%read-only :initarg :read-only :reader structure-slot-definition-read-only)))
 
 (defclass structure-direct-slot-definition (structure-slot-definition

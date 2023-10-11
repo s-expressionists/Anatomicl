@@ -8,7 +8,7 @@
            (included-structure (find-class parent-name environment nil))
            (expected-type (structure-class-name client)))
       (unless included-structure
-        (if (structure-description parent-name environment)
+        (if (structure-description client parent-name environment)
             (error 'included-structure-must-not-be-typed :name parent-name)
             (error 'included-structure-does-not-exist :name parent-name)))
       (unless (typep included-structure expected-type)

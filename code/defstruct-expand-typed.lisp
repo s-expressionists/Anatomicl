@@ -30,7 +30,7 @@
          (initial-offset-padding (make-list initial-offset :initial-element nil)))
     (cond ((defstruct-included-structure-name description)
            (let* ((parent-name (defstruct-included-structure-name description))
-                  (parent (structure-description parent-name environment)))
+                  (parent (structure-description client parent-name environment)))
              (unless parent
                (if (find-class parent-name nil environment)
                    (error 'included-structure-must-be-typed :name parent-name)

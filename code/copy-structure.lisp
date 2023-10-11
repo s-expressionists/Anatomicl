@@ -1,8 +1,9 @@
 (cl:in-package #:anatomicl)
 
 (defun copy-structure (client object)
-  (declare (ignore client))
-  (check-type object structure-object)
+  (let ((structure-object-name (structure-object-name client)))
+    (assert (typep object structure-object-name) (place)
+            'type-error :datum object :expected-type structure-object-name))
   (let* ((class (class-of object))
          (new-object (allocate-instance class)))
     (dolist (slot (mop:class-slots class))
