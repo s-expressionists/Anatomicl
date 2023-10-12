@@ -26,23 +26,17 @@
 
        (defclass ,structure-class-name ,class-superclasses
          ((%standard-constructor :initarg :standard-constructor
-                                 :reader anatomicl:standard-constructor-p))
-         (:default-initargs :standard-constructor nil))
+                                 :initform nil
+                                 :reader anatomicl:standard-constructor-p)))
 
-       #+(or)(defmethod closer-mop:validate-superclass ((class ,structure-class-name) (superclass (eql (find-class 't))))
+       (defmethod closer-mop:validate-superclass ((class ,structure-class-name) (superclass (eql (find-class 't))))
          ;; T is not a valid direct superclass, all structures inherit from STRUCTURE-OBJECT.
          nil)
 
-       #+(or)(defmethod closer-mop:validate-superclass ((class ,structure-class-name) (superclass standard-object))
+       (defmethod closer-mop:validate-superclass ((class ,structure-class-name) (superclass (eql (find-class 'standard-object))))
          ;; Only STRUCTURE-OBJECT may have STANDARD-OBJECT as a direct superclass, all
          ;; other structure classes must inherit from STRUCTURE-OBJECT.
          (eql (class-name class) ',structure-object-name))
-
-       (defmethod closer-mop:validate-superclass ((class ,structure-class-name) superclass)
-         (declare (ignore superclass))
-         ;; Only STRUCTURE-OBJECT may have STANDARD-OBJECT as a direct superclass, all
-         ;; other structure classes must inherit from STRUCTURE-OBJECT.
-         t)
 
        (defclass ,structure-object-name ,object-superclasses
          ()
