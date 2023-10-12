@@ -15,13 +15,13 @@
         (error 'included-structure-must-be-structure
                :name parent-name :datum included-structure
                :expected-type expected-type))
-      (unless (mop:class-finalized-p included-structure)
-        (mop:finalize-inheritance included-structure))
+      (unless (closer-mop:class-finalized-p included-structure)
+        (closer-mop:finalize-inheritance included-structure))
       ;; All included slots must be present in the included structure.
       (dolist (slot (defstruct-included-slots description))
         (let ((existing (find (slot-name slot)
-                              (mop:class-slots included-structure)
-                              :key #'mop:slot-definition-name
+                              (closer-mop:class-slots included-structure)
+                              :key #'closer-mop:slot-definition-name
                               :test #'string=)))
           (unless existing
             (error 'included-slot-missing-from-parent
@@ -30,20 +30,20 @@
           ;; If it is legal for them to be different, then they need to be
           ;; canonicalized to the existing slot so that slot inheritance works
           ;; correctly.
-          (unless (eql (slot-name slot) (mop:slot-definition-name existing))
+          (unless (eql (slot-name slot) (closer-mop:slot-definition-name existing))
             (error 'included-slot-conflicts-with-parent-slot
                    :slot-name (slot-name slot)
-                   :parent-slot-name (mop:slot-definition-name existing)))))
+                   :parent-slot-name (closer-mop:slot-definition-name existing)))))
       ;; Direct slots must not be present (string=)
       (dolist (slot (defstruct-direct-slots description))
         (let ((existing (find (slot-name slot)
-                              (mop:class-slots included-structure)
-                              :key #'mop:slot-definition-name
+                              (closer-mop:class-slots included-structure)
+                              :key #'closer-mop:slot-definition-name
                               :test #'string=)))
           (when existing
             (error 'direct-slot-conflicts-with-parent-slot
                    :slot-name (slot-name slot)
-                   :parent-slot-name (mop:slot-definition-name existing))))))))
+                   :parent-slot-name (closer-mop:slot-definition-name existing))))))))
 
 (defmethod compute-slot-layout (client (description defstruct-object-description) environment)
   (check-included-structure-object client description environment)
@@ -53,9 +53,9 @@
      (loop with included-structure = (find-class (defstruct-included-structure-name description)
                                                  environment)
            with included-slots = (defstruct-included-slots description)
-           with default-initargs = (mop:class-direct-default-initargs included-structure)
-           for slot in (mop:class-slots included-structure)
-           for slot-name = (mop:slot-definition-name slot)
+           with default-initargs = (closer-mop:class-direct-default-initargs included-structure)
+           for slot in (closer-mop:class-slots included-structure)
+           for slot-name = (closer-mop:slot-definition-name slot)
            for inclusion = (find slot-name included-slots :key #'slot-name)
            collect (or inclusion
                        ;; For implicitly included slots, reconstruct a slot-description
@@ -69,7 +69,7 @@
                                         :accessor-name (compute-accessor-name description slot-name)
                                         :initform (second default-initarg)
                                         :initform-p (not (not default-initarg))
-                                        :type (mop:slot-definition-type slot)
+                                        :type (closer-mop:slot-definition-type slot)
                                         :read-only (structure-slot-definition-read-only slot))))))
    (defstruct-direct-slots description)))
 
@@ -118,7 +118,7 @@
   (declare (ignore environment))
   `(progn
      (eval-when (:compile-toplevel :load-toplevel :execute)
-       (mop:ensure-class
+       (closer-mop:ensure-class
         ',(defstruct-name description)
         :metaclass ',(structure-class-name client)
         :direct-superclasses '(,(or (defstruct-included-structure-name description)

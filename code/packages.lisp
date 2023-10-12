@@ -2,7 +2,7 @@
 
 (defpackage #:anatomicl
   (:use #:common-lisp)
-  (:local-nicknames (#:mop #+sicl #:sicl-clos #-sicl #:closer-mop))
+  #+sicl (:local-nicknames (#:closer-mop #:sicl-clos))
   (:shadow #:copy-structure)
   (:export #:client-form
            #:copy-structure
