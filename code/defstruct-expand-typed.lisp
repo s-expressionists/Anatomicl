@@ -133,7 +133,7 @@
                     collect `(eql (elt object ,index) ',sym))))))
 
 (defmethod generate-copier (client (description defstruct-typed-description) layout copier-name)
-  (declare (ignore description))
+  (declare (ignore client description layout))
   ;; TODO: Should this check the type?
   `(defun ,copier-name (object)
      (copy-seq object)))
@@ -145,7 +145,7 @@
         (list `(defun (setf ,(slot-accessor-name slot)) (new-value structure)
                  (setf (elt structure ,index) (the ,(slot-type slot) new-value)))))))
 
-(defun generate-typed-slot-accessors (client description layout)
+(defun generate-typed-slot-accessors (description layout)
   (declare (ignore description))
   (destructuring-bind (slot-layout name-layout) layout
     (declare (ignore name-layout))
@@ -155,8 +155,9 @@
             append (generate-typed-slot-accessor slot index))))
 
 (defmethod generate-defstruct-bits (client (description defstruct-typed-description) layout environment)
+  (declare (ignore environment))
   `(progn
      (eval-when (:compile-toplevel :load-toplevel :execute)
        (setf (structure-description ,(client-form client) ',(defstruct-name description) nil)
              ',description))
-     ,@(generate-typed-slot-accessors client description layout)))
+     ,@(generate-typed-slot-accessors description layout)))

@@ -10,6 +10,7 @@
            #:expand-defstruct
            #:parse-defstruct
            #:print-structure
+           #:standard-constructor-p
            #:structure-class-name
            #:structure-description
            #:structure-direct-slot-definition

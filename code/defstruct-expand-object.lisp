@@ -78,10 +78,11 @@
   layout)
 
 (defmethod generate-allocation-form (client (description defstruct-object-description) all-slots)
-  (declare (ignore client))
+  (declare (ignore client all-slots))
   `(allocate-instance (find-class ',(defstruct-name description))))
 
 (defmethod generate-slot-initialization-form (client (description defstruct-object-description) layout object slot value)
+  (declare (ignore layout))
   (declare (ignore client))
   `(setf (slot-value ,object ',(slot-name slot)) ,value))
 
@@ -91,6 +92,7 @@
      (typep object ',(defstruct-name description))))
 
 (defmethod generate-copier (client (description defstruct-object-description) layout copier-name)
+  (declare (ignore layout))
   `(defun ,copier-name (object)
      (check-type object ,(defstruct-name description))
      (copy-structure ,(client-form client) object)))
@@ -123,8 +125,8 @@
                                     (structure-object-name client)))
         :direct-slots (list ,@(compute-structure-object-direct-slots layout))
         :direct-default-initargs (list ,@(compute-structure-object-direct-default-initargs layout))
-        :has-standard-constructor ',(some (lambda (ctor) (endp (rest ctor)))
-                                          (defstruct-constructors description))))
+        :standard-constructor ',(some (lambda (ctor) (endp (rest ctor)))
+                                        (defstruct-constructors description))))
      ,@(when (defstruct-print-object description)
          (list `(defmethod print-object ((object ,(defstruct-name description)) stream)
                   (funcall (function ,(defstruct-print-object description)) object stream))))))

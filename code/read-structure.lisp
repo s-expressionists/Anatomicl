@@ -18,7 +18,7 @@
                (error 'sharp-s-class-must-name-structure-class
                       :stream stream
                       :name structure-name))
-             (unless (has-standard-constructor class)
+             (unless (standard-constructor-p class)
                (error 'sharp-s-class-must-have-standard-constructor
                       :stream stream
                       :name structure-name))

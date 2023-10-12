@@ -1,6 +1,6 @@
 (cl:in-package #:anatomicl)
 
-(defmethod compute-slot-layout (client description environment))
+(defgeneric compute-slot-layout (client description environment))
 
 (defgeneric layout-slots (client description layout))
 (defgeneric generate-allocation-form (client description layout))
@@ -16,6 +16,8 @@
 (defgeneric structure-object-name (client))
 
 (defgeneric client-form (client))
+
+(defgeneric standard-constructor-p (object))
 
 ;;; BOA constructors are a more complicated as they have the ability
 ;;; to completely override any specified slot initforms. So, in some
@@ -33,7 +35,6 @@
 ;;; consequences are undefined if an attempt is later made to read
 ;;; the corresponding slot's value before a value is explicitly assigned."
 (defmethod generate-boa-constructor (client description layout name lambda-list)
-  (declare (ignore client))
   (multiple-value-bind (requireds optionals rest keywords allow-other-keys-p auxs keyp)
       ;; Don't normalize, as BOA lambda lists have different defaulting behaviour
       ;; for initforms.
@@ -159,7 +160,6 @@
            ,object)))))
 
 (defmethod generate-standard-constructor (client description layout constructor-name)
-  (declare (ignore client))
   (let* ((all-slots (layout-slots client description layout))
          (suppliedp-syms (loop for slot in all-slots
                                collect (gensym (string (slot-name slot)))))

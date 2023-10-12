@@ -221,7 +221,7 @@
 
 (defun check-duplicate-slot-option (slot-description slot-options option-name)
   (loop with seen = nil
-        for (name value) on slot-options by #'cddr
+        for (name) on slot-options by #'cddr
         when (eql name option-name)
           do (if seen
                  (error 'duplicate-slot-option
@@ -273,7 +273,7 @@
            (values (second option)
                    (parse-slot-descriptions (cddr option) conc-name)))
           (t
-           (error 'malformed-option option)))))
+           (error 'malformed-option :option option)))))
 
 (defun separate-documentation-and-slots (documentation-and-slots)
   (if (stringp (first documentation-and-slots))

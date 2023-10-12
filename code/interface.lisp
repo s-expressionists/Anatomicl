@@ -25,9 +25,9 @@
          ',structure-class-name)
 
        (defclass ,structure-class-name ,class-superclasses
-         ((%has-standard-constructor :initarg :has-standard-constructor
-                                     :reader has-standard-constructor))
-         (:default-initargs :has-standard-constructor nil))
+         ((%standard-constructor :initarg :standard-constructor
+                                 :reader anatomicl:standard-constructor-p))
+         (:default-initargs :standard-constructor nil))
 
        #+(or)(defmethod mop:validate-superclass ((class ,structure-class-name) (superclass (eql (find-class 't))))
          ;; T is not a valid direct superclass, all structures inherit from STRUCTURE-OBJECT.
@@ -39,6 +39,7 @@
          (eql (class-name class) ',structure-object-name))
 
        (defmethod mop:validate-superclass ((class ,structure-class-name) superclass)
+         (declare (ignore superclass))
          ;; Only STRUCTURE-OBJECT may have STANDARD-OBJECT as a direct superclass, all
          ;; other structure classes must inherit from STRUCTURE-OBJECT.
          t)
@@ -71,6 +72,7 @@
          (print-structure object stream))
 
        (defmethod mop:compute-effective-slot-definition :around ((class ,structure-class-name) name direct-slot-definitions)
+         (declare (ignore name))
          (let ((read-only (structure-slot-definition-read-only (first direct-slot-definitions))))
            ;; Validate the read-only slot. The D-S-D list is sorted in precedence order,
            ;; so the value of read-only slot can only move from true to false, not the
@@ -89,6 +91,7 @@
              effective-slot)))
 
        (defmethod (setf mop:slot-value-using-class) :before (new-value (class ,structure-class-name) object (slot structure-effective-slot-definition))
+         (declare (ignore new-value))
          (when (and (structure-slot-definition-read-only slot)
                     ;; As a special exception, allow unbound/uninitialized slots to
                     ;; be initialized.
