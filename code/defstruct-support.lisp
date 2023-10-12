@@ -2,12 +2,12 @@
 
 (defmethod compute-slot-layout (client description environment))
 
-(defgeneric layout-slots (description layout))
-(defgeneric generate-allocation-form (description layout))
-(defgeneric generate-slot-initialization-form (description layout object slot value))
+(defgeneric layout-slots (client description layout))
+(defgeneric generate-allocation-form (client description layout))
+(defgeneric generate-slot-initialization-form (client description layout object slot value))
 
-(defgeneric generate-boa-constructor (description layout name lambda-list))
-(defgeneric generate-standard-constructor (description layout name))
+(defgeneric generate-boa-constructor (client description layout name lambda-list))
+(defgeneric generate-standard-constructor (client description layout name))
 
 (defgeneric structure-description (client name environment))
 (defgeneric (setf structure-description) (new-value client name environment))
@@ -32,13 +32,14 @@
 ;;; "If no default value is supplied for an aux variable variable, the
 ;;; consequences are undefined if an attempt is later made to read
 ;;; the corresponding slot's value before a value is explicitly assigned."
-(defmethod generate-boa-constructor (description layout name lambda-list)
+(defmethod generate-boa-constructor (client description layout name lambda-list)
+  (declare (ignore client))
   (multiple-value-bind (requireds optionals rest keywords allow-other-keys-p auxs keyp)
       ;; Don't normalize, as BOA lambda lists have different defaulting behaviour
       ;; for initforms.
       (alexandria:parse-ordinary-lambda-list lambda-list :normalize nil)
     (let ((object (gensym "OBJECT"))
-          (all-slots (layout-slots description layout))
+          (all-slots (layout-slots client description layout))
           (reconstructed-lambda-list '())
           ;; Slots that have been mentioned in the lambda-list and perform
           ;; some kind of initialization.
@@ -138,7 +139,7 @@
                    ;; slot fully unbound.
                    (push name unbound-slots))))))
       `(defun ,name ,(nreverse reconstructed-lambda-list)
-         (let ((,object ,(generate-allocation-form description all-slots)))
+         (let ((,object ,(generate-allocation-form client description all-slots)))
            ,@(loop for slot in all-slots
                    for name = (slot-name slot)
                    when (and slot
@@ -147,18 +148,19 @@
                                  (slot-initform-p slot)))
                      collect (cond ((not (find name bound-slots))
                                     ;; Slot initialized by initform.
-                                    (generate-slot-initialization-form description layout object slot (slot-initform slot)))
+                                    (generate-slot-initialization-form client description layout object slot (slot-initform slot)))
                                     ((find name potentially-unbound-slots)
                                      ;; Slot may or may not have a value.
                                      `(unless (eq ,name '%uninitialized%)
-                                        ,(generate-slot-initialization-form description layout object slot name)))
+                                        ,(generate-slot-initialization-form client description layout object slot name)))
                                     (t
                                      ;; Slot initialized by argument.
-                                     (generate-slot-initialization-form description layout object slot name))))
+                                     (generate-slot-initialization-form client description layout object slot name))))
            ,object)))))
 
-(defmethod generate-standard-constructor (description layout constructor-name)
-  (let* ((all-slots (layout-slots description layout))
+(defmethod generate-standard-constructor (client description layout constructor-name)
+  (declare (ignore client))
+  (let* ((all-slots (layout-slots client description layout))
          (suppliedp-syms (loop for slot in all-slots
                                collect (gensym (string (slot-name slot)))))
          ;; "The symbols which name the slots must not be used by the
@@ -176,28 +178,28 @@
                                             for suppliedp in suppliedp-syms
                                             collect (list name (slot-initform slot) suppliedp)))
        (declare (ignorable ,@suppliedp-syms))
-       (let ((,object ,(generate-allocation-form description layout)))
+       (let ((,object ,(generate-allocation-form client description layout)))
          ,@(loop for slot in all-slots
                  for name in slot-name-syms
                  for suppliedp in suppliedp-syms
                  collect (if (slot-initform-p slot)
-                             (generate-slot-initialization-form description layout object slot name)
+                             (generate-slot-initialization-form client description layout object slot name)
                              ;; If no initform was supplied, then leave the slot uninitialized.
                              `(when ,suppliedp
-                                ,(generate-slot-initialization-form description layout object slot name))))
+                                ,(generate-slot-initialization-form client description layout object slot name))))
          ,object))))
 
-(defun generate-constructors (description layout)
+(defun generate-constructors (client description layout)
   (loop for constructor in (defstruct-constructors description)
         collect (if (cdr constructor)
-                    (generate-boa-constructor description layout (first constructor) (second constructor))
-                    (generate-standard-constructor description layout (first constructor)))))
+                    (generate-boa-constructor client description layout (first constructor) (second constructor))
+                    (generate-standard-constructor client description layout (first constructor)))))
 
-(defgeneric generate-predicate (description layout predicate-name))
+(defgeneric generate-predicate (client description layout predicate-name))
 
-(defun generate-predicates (description layout)
+(defun generate-predicates (client description layout)
   (loop for predicate-name in (defstruct-predicates description)
-        collect (generate-predicate description layout predicate-name)))
+        collect (generate-predicate client description layout predicate-name)))
 
 (defgeneric generate-copier (client description layout copier-name))
 
@@ -213,8 +215,8 @@
   (let ((layout (compute-slot-layout client description environment)))
     `(progn
        ,(generate-defstruct-bits client description layout environment)
-       ,@(generate-constructors description layout)
-       ,@(generate-predicates description layout)
+       ,@(generate-constructors client description layout)
+       ,@(generate-predicates client description layout)
        ,@(generate-copiers client description layout)
        ',(defstruct-name description))))
 

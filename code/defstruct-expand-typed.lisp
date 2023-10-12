@@ -99,10 +99,12 @@
                              (defstruct-direct-slots description))
                      '()))))))
 
-(defmethod layout-slots ((description defstruct-typed-description) layout)
+(defmethod layout-slots (client (description defstruct-typed-description) layout)
+  (declare (ignore client))
   (remove nil (first layout)))
 
-(defmethod generate-allocation-form ((description defstruct-typed-description) layout)
+(defmethod generate-allocation-form (client (description defstruct-typed-description) layout)
+  (declare (ignore client))
   (destructuring-bind (slot-layout name-layout) layout
     (let ((form (if (vector-defstruct-p description)
                     `(make-array ,(length slot-layout) :element-type ',(second (canonicalize-struct-type (defstruct-type description))))
@@ -115,12 +117,14 @@
                   ,temp)))
             (t form)))))
 
-(defmethod generate-slot-initialization-form ((description defstruct-typed-description) layout object slot value)
+(defmethod generate-slot-initialization-form (client (description defstruct-typed-description) layout object slot value)
+  (declare (ignore client))
   (destructuring-bind (slot-layout name-layout) layout
     (declare (ignore name-layout))
     `(setf (elt ,object ,(position slot slot-layout)) ,value)))
 
-(defmethod generate-predicate ((description defstruct-typed-description) layout predicate-name)
+(defmethod generate-predicate (client (description defstruct-typed-description) layout predicate-name)
+  (declare (ignore client))
   (destructuring-bind (slot-layout name-layout) layout
     `(defun ,predicate-name (object)
        (and (typep object ',(defstruct-type description))
@@ -141,7 +145,7 @@
         (list `(defun (setf ,(slot-accessor-name slot)) (new-value structure)
                  (setf (elt structure ,index) (the ,(slot-type slot) new-value)))))))
 
-(defun generate-typed-slot-accessors (description layout)
+(defun generate-typed-slot-accessors (client description layout)
   (declare (ignore description))
   (destructuring-bind (slot-layout name-layout) layout
     (declare (ignore name-layout))
@@ -155,4 +159,4 @@
      (eval-when (:compile-toplevel :load-toplevel :execute)
        (setf (structure-description ,(client-form client) ',(defstruct-name description) nil)
              ',description))
-     ,@(generate-typed-slot-accessors description layout)))
+     ,@(generate-typed-slot-accessors client description layout)))

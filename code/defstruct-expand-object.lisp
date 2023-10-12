@@ -73,17 +73,20 @@
                                         :read-only (structure-slot-definition-read-only slot))))))
    (defstruct-direct-slots description)))
 
-(defmethod layout-slots ((description defstruct-object-description) layout)
+(defmethod layout-slots (client (description defstruct-object-description) layout)
+  (declare (ignore client))
   layout)
 
-(defmethod generate-allocation-form ((description defstruct-object-description) all-slots)
+(defmethod generate-allocation-form (client (description defstruct-object-description) all-slots)
+  (declare (ignore client))
   `(allocate-instance (find-class ',(defstruct-name description))))
 
-(defmethod generate-slot-initialization-form ((description defstruct-object-description) layout object slot value)
+(defmethod generate-slot-initialization-form (client (description defstruct-object-description) layout object slot value)
+  (declare (ignore client))
   `(setf (slot-value ,object ',(slot-name slot)) ,value))
 
-(defmethod generate-predicate ((description defstruct-object-description) layout predicate-name)
-  (declare (ignore layout))
+(defmethod generate-predicate (client (description defstruct-object-description) layout predicate-name)
+  (declare (ignore client layout))
   `(defun ,predicate-name (object)
      (typep object ',(defstruct-name description))))
 
