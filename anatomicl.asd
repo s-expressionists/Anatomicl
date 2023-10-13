@@ -1,6 +1,6 @@
 (cl:in-package #:asdf-user)
 
-(defsystem #:anatomicl
+(defsystem "anatomicl"
   :description "Portable STRUCTURE implementation for Common Lisp."
   :license "BSD"
   :author ("Robert Strandh"
@@ -10,8 +10,8 @@
   :version (:read-file-form "version.sexp")
   :homepage "https://github.com/s-expressionists/Anatomicl"
   :bug-tracker "https://github.com/s-expressionists/Anatomicl/issues"
-  :depends-on (#:alexandria
-               (:feature (:not :sicl) #:closer-mop))
+  :depends-on ("alexandria"
+               (:feature (:not :sicl) "closer-mop"))
   :components ((:module code
                 :serial t
                 :components ((:file "packages")

@@ -1,6 +1,6 @@
 (cl:in-package #:asdf-user)
 
-(defsystem #:anatomicl-intrinsic
+(defsystem "anatomicl-intrinsic"
   :description "Intrinsic interface to Anatomicl."
   :license "BSD"
   :author ("Robert Strandh"
@@ -10,7 +10,7 @@
   :version (:read-file-form "version.sexp")
   :homepage "https://github.com/s-expressionists/Anatomicl"
   :bug-tracker "https://github.com/s-expressionists/Anatomicl/issues"
-  :depends-on (#:anatomicl)
+  :depends-on ("anatomicl")
   :components ((:module code
                 :pathname "code/intrinsic/"
                 :serial t

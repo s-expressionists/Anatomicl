@@ -1,6 +1,6 @@
 (cl:in-package #:asdf-user)
 
-(defsystem #:anatomicl-extrinsic
+(defsystem "anatomicl-extrinsic"
   :description "Extrinsic interface to Anatomicl."
   :license "BSD"
   :author ("Robert Strandh"
@@ -10,7 +10,7 @@
   :version (:read-file-form "version.sexp")
   :homepage "https://github.com/s-expressionists/Anatomicl"
   :bug-tracker "https://github.com/s-expressionists/Anatomicl/issues"
-  :depends-on (#:anatomicl)
+  :depends-on ("anatomicl")
   :in-order-to ((asdf:test-op (asdf:test-op #:anatomicl-extrinsic/test)))
   :components ((:module code
                 :pathname "code/extrinsic/"
@@ -28,7 +28,8 @@
   :version (:read-file-form "version.sexp")
   :homepage "https://github.com/s-expressionists/Anatomicl"
   :bug-tracker "https://github.com/s-expressionists/Anatomicl/issues"
-  :depends-on ("ansi-test-harness")
+  :depends-on ("anatomicl-extrinsic"
+               "ansi-test-harness")
   :perform (asdf:test-op (op c)
              (symbol-call :anatomicl-extrinsic/test :test))
   :components ((:module code
