@@ -24,7 +24,14 @@ jobs:
       image: ghcr.io/yitzchak/archlinux-cl:latest
     steps:
     - name: Checkout Repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
+      with:
+        repository: yitzchak/ansi-test-harness
+        path: ansi-test-harness
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+      with:
+        path: anatomicl
     - name: Setup Lisp Environment
       run: |
         make-rc
