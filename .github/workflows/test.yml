@@ -31,4 +31,4 @@ jobs:
         asdf-add
     - name: Run ANSI Tests
       run: |
-        lisp -i ${{ matrix.lisp }} -e "(ql:quickload :anatomicl-intrinsic/test)" -e "(asdf:test-system :anatomicl-intrinsic)"
+        lisp -i ${{ matrix.lisp }} -e "(ql:quickload :anatomicl-extrinsic/test)" -e "(asdf:test-system :anatomicl-extrinsic)"
