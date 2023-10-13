@@ -36,7 +36,8 @@
        (defmethod closer-mop:validate-superclass ((class ,structure-class-name) (superclass (eql (find-class 'standard-object))))
          ;; Only STRUCTURE-OBJECT may have STANDARD-OBJECT as a direct superclass, all
          ;; other structure classes must inherit from STRUCTURE-OBJECT.
-         (eql (class-name class) ',structure-object-name))
+         #-clasp (eql (class-name class) ',structure-object-name)
+         #+clasp t)
 
        (defclass ,structure-object-name ,object-superclasses
          ()
