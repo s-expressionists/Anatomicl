@@ -39,6 +39,4 @@
     (funcall setf-structure-description-function
              new-value name (funcall global-environment-function environment))))
 
-(anatomicl:define-interface *client* intrinsic-client
-  :intrinsic t
-  #+sicl :structure-class-superclasses #+sicl '(sicl-clos:regular-class))
+(anatomicl:define-interface *client* intrinsic-client t)

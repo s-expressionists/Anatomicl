@@ -131,10 +131,10 @@
                (get-singular-option options :named))
            ;; Structure is named, allow predicate options.
            predicates)
-          (t
+          ((and suppliedp predicates)
            ;; Structure is not named, predicates not permitted.
-           (when (and suppliedp predicates)
-             (error 'predicate-requires-named-structure))
+           (error 'predicate-requires-named-structure))
+          (t
            '()))))
 
 (defun parse-named-option (options)

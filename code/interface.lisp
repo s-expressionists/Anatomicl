@@ -1,9 +1,6 @@
 (cl:in-package #:anatomicl)
 
-(defmacro define-interface (client-var client-class
-                            &key (class-superclasses '(standard-class))
-                                 (object-superclasses '(standard-object))
-                                 intrinsic)
+(defmacro define-interface (client-var client-class &optional intrinsic)
   (let* ((pkg (if intrinsic (find-package "COMMON-LISP") *package*))
          (defstruct-name (intern "DEFSTRUCT" pkg))
          (copy-structure-name (intern "COPY-STRUCTURE" pkg))
@@ -24,10 +21,11 @@
        (defmethod structure-class-name ((client ,client-class))
          ',structure-class-name)
 
-       (defclass ,structure-class-name ,class-superclasses
+       (defclass ,structure-class-name (#+sicl sicl-clos:regular-class
+                                        #-sicl standard-class)
          ((%standard-constructor :initarg :standard-constructor
                                  :initform nil
-                                 :reader anatomicl:standard-constructor-p)))
+                                 :reader standard-constructor-p)))
 
        (defmethod closer-mop:validate-superclass ((class ,structure-class-name) (superclass (eql (find-class 't))))
          ;; T is not a valid direct superclass, all structures inherit from STRUCTURE-OBJECT.
@@ -36,10 +34,10 @@
        (defmethod closer-mop:validate-superclass ((class ,structure-class-name) (superclass (eql (find-class 'standard-object))))
          ;; Only STRUCTURE-OBJECT may have STANDARD-OBJECT as a direct superclass, all
          ;; other structure classes must inherit from STRUCTURE-OBJECT.
-         #-clasp (eql (class-name class) ',structure-object-name)
-         #+clasp t)
+         #-(or abcl clasp) (eql (class-name class) ',structure-object-name)
+         #+(or abcl clasp) t)
 
-       (defclass ,structure-object-name ,object-superclasses
+       (defclass ,structure-object-name (standard-object)
          ()
          (:metaclass ,structure-class-name))
 
