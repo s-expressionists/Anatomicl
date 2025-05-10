@@ -13,7 +13,7 @@
            (unless (oddp (list-length form))
              (error 'missing-sharp-s-argument :stream stream))
            (let* ((structure-name (first form))
-                  (class (find-class structure-name nil)))
+                  (class (find-class client structure-name nil)))
              (unless (and class (typep class (structure-class-name client)))
                (error 'sharp-s-class-must-name-structure-class
                       :stream stream

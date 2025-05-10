@@ -5,7 +5,7 @@
 (defun check-included-structure-object (client description environment)
   (when (defstruct-included-structure-name description)
     (let* ((parent-name (defstruct-included-structure-name description))
-           (included-structure (find-class parent-name environment nil))
+           (included-structure (find-class client parent-name nil environment))
            (expected-type (structure-class-name client)))
       (unless included-structure
         (if (structure-description client parent-name environment)
@@ -50,7 +50,9 @@
   ;; All of them, including implicitly included slots.
   (append
    (when (defstruct-included-structure-name description)
-     (loop with included-structure = (find-class (defstruct-included-structure-name description)
+     (loop with included-structure = (find-class client
+                                                 (defstruct-included-structure-name description)
+                                                 t
                                                  environment)
            with included-slots = (defstruct-included-slots description)
            with default-initargs = (closer-mop:class-direct-default-initargs included-structure)
@@ -79,7 +81,7 @@
 
 (defmethod generate-allocation-form (client (description defstruct-object-description) all-slots)
   (declare (ignore client all-slots))
-  `(allocate-instance (find-class ',(defstruct-name description))))
+  `(allocate-instance (cl:find-class ',(defstruct-name description))))
 
 (defmethod generate-slot-initialization-form (client (description defstruct-object-description) layout object slot value)
   (declare (ignore layout))

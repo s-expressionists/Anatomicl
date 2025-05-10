@@ -1,5 +1,7 @@
 (cl:in-package #:anatomicl)
 
+(defgeneric find-class (client symbol &optional errorp environment))
+
 (defgeneric compute-slot-layout (client description environment))
 
 (defgeneric layout-slots (client description layout))
@@ -18,6 +20,10 @@
 (defgeneric client-form (client))
 
 (defgeneric standard-constructor-p (object))
+
+(defmethod find-class (client symbol &optional (errorp t) environment)
+  (declare (ignore client))
+  (cl:find-class symbol errorp environment))
 
 ;;; BOA constructors are a more complicated as they have the ability
 ;;; to completely override any specified slot initforms. So, in some

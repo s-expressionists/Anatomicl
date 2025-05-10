@@ -32,7 +32,7 @@
            (let* ((parent-name (defstruct-included-structure-name description))
                   (parent (structure-description client parent-name environment)))
              (unless parent
-               (if (find-class parent-name nil environment)
+               (if (find-class client parent-name nil environment)
                    (error 'included-structure-must-be-typed :name parent-name)
                    (error 'included-structure-does-not-exist :name parent-name)))
              ;; TODO: This should do a subtypep test to make sure the types are the same/compatible...

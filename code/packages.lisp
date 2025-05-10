@@ -3,11 +3,12 @@
 (defpackage #:anatomicl
   (:use #:common-lisp)
   #+sicl (:local-nicknames (#:closer-mop #:sicl-clos))
-  (:shadow #:copy-structure)
+  (:shadow #:find-class #:copy-structure)
   (:export #:client-form
            #:copy-structure
            #:define-interface
            #:expand-defstruct
+           #:find-class
            #:parse-defstruct
            #:print-structure
            #:standard-constructor-p

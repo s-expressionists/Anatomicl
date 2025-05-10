@@ -27,11 +27,11 @@
                                  :initform nil
                                  :reader standard-constructor-p)))
 
-       (defmethod closer-mop:validate-superclass ((class ,structure-class-name) (superclass (eql (find-class 't))))
+       (defmethod closer-mop:validate-superclass ((class ,structure-class-name) (superclass (eql (cl:find-class 't))))
          ;; T is not a valid direct superclass, all structures inherit from STRUCTURE-OBJECT.
          nil)
 
-       (defmethod closer-mop:validate-superclass ((class ,structure-class-name) (superclass (eql (find-class 'standard-object))))
+       (defmethod closer-mop:validate-superclass ((class ,structure-class-name) (superclass (eql (cl:find-class 'standard-object))))
          ;; Only STRUCTURE-OBJECT may have STANDARD-OBJECT as a direct superclass, all
          ;; other structure classes must inherit from STRUCTURE-OBJECT.
          #-(or abcl clasp) (eql (class-name class) ',structure-object-name)
@@ -52,11 +52,11 @@
 
        (defmethod closer-mop:direct-slot-definition-class ((class ,structure-class-name) &rest initargs)
          (declare (ignore initargs))
-         (find-class 'structure-direct-slot-definition))
+         (cl:find-class 'structure-direct-slot-definition))
 
        (defmethod closer-mop:effective-slot-definition-class ((class ,structure-class-name) &rest initargs)
          (declare (ignore initargs))
-         (find-class 'structure-effective-slot-definition))
+         (cl:find-class 'structure-effective-slot-definition))
 
        (defmethod structure-object-name ((client ,client-class))
          ',structure-object-name)
